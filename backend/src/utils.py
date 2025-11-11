@@ -3,20 +3,17 @@ from clerk_backend_api import Clerk, AuthenticateRequestOptions
 import os
 from dotenv import load_dotenv
 
-load_dotenv()  # Carrega as variáveis de ambiente do arquivo .env
+load_dotenv()
+
 
 clerk_sdk = Clerk(bearer_auth=os.getenv("CLERK_SECRET_KEY"))
 
 def authenticate_and_get_user_details(request):
     try:
         request_state = clerk_sdk.authenticate_request(
-            request, 
+            request,
             AuthenticateRequestOptions(
-                authorized_parties=[
-                    "http://localhost:5174",
-                    "http://localhost:5173",
-                    "http://localhost:3000"
-                ],
+                authorized_parties=["http://localhost:5173", "http://localhost:5174"],
                 jwt_key=os.getenv("JWT_KEY")
             )
         )
@@ -25,7 +22,7 @@ def authenticate_and_get_user_details(request):
             raise HTTPException(status_code=401, detail="Invalid token")
 
         user_id = request_state.payload.get("sub")
-        return {"user_id": user_id}
 
+        return {"user_id": user_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
